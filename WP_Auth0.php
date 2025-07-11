@@ -71,7 +71,13 @@ function wp_auth0_shortcode($atts)
 	}
 
 	if (empty($atts['redirect_to']) && !empty($_SERVER['REQUEST_URI'])) {
-		$atts['redirect_to'] = home_url(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])));
+		// PATCH: fixed malformed redirect_to handling
+		//$atts['redirect_to'] = home_url(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])));
+		$raw_redirect = $_REQUEST['redirect_to'] ?? '';
+		if (preg_match('/^https?%3A/i', $raw_redirect)) {
+ 		    $raw_redirect = urldecode($raw_redirect);
+ 		}
+ 		$atts['redirect_to'] = esc_url_raw($raw_redirect);
 	}
 
 	ob_start();
